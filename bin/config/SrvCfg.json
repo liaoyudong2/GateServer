@@ -1,0 +1,68 @@
+{
+  "DebugMode": true,
+  "ServerId": 200,
+  "GateSrv":
+  {
+    "UseSSL":
+    {
+      "Open": false,
+      "Cert": "certs/1_honour.qincaigame.com_bundle.crt",
+      "PKey": "certs/2_honour.qincaigame.com.key",
+      "Passwd": ""
+    },
+    "BindClientPort":9010,
+    "BindSrvAddr":"127.0.0.1:8010"
+  },
+  "GameSrv":
+  {
+    "BindSrvAddr":"127.0.0.1:7010"
+  },
+  "WorldSrv":
+  {
+    "WorldSrvId":1,
+    "BindSrvAddr":"127.0.0.1:6010"
+  },
+  "DBSrv":
+  {
+    "BindSrvAddr":"127.0.0.1:5010"
+  },
+  "RedisConnect":
+  {
+    "BindSrvAddr":"127.0.0.1:6379"
+  },
+  "MySQLConnect":
+  {
+    "SrvDB":
+    {
+      "Ip":"127.0.0.1",
+      "Port":3306,
+      "User":"root",
+      "PassWd":"Y3QycGhrWW1ydGxlV2VkdmIyUWU9",
+      "DBName":"dg3_srv"
+    },
+    "LoginDB":
+    {
+      "Ip":"127.0.0.1",
+      "Port":3306,
+      "User":"root",
+      "PassWd":"Y3QycGhrWW1ydGxlV2VkdmIyUWU9",
+      "DBName":"dg3_login"
+    },
+    "LogDB":
+    {
+      "Ip":"127.0.0.1",
+      "Port":3306,
+      "User":"root",
+      "PassWd":"Y3QycGhrWW1ydGxlV2VkdmIyUWU9",
+      "DBName":"dg3_log"
+    },
+    "WorldDB":
+    {
+      "Ip":"127.0.0.1",
+      "Port":3306,
+      "User":"root",
+      "PassWd":"Y3QycGhrWW1ydGxlV2VkdmIyUWU9",
+      "DBName":"dg3_world"
+    }
+  }
+}
