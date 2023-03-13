@@ -215,7 +215,7 @@ func (log *ZLoggerCore) flushBuffer() error {
 	log.openFile()
 	if log.writer.out != nil {
 		if log.console != nil {
-			log.console.Write(log.buf.Bytes())
+			_, _ = log.console.Write(log.buf.Bytes())
 		}
 		//将填充好的buf 写到IO输出上
 		_, err := log.writer.out.Write(log.buf.Bytes())

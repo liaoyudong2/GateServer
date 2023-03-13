@@ -36,7 +36,7 @@ func Instance() *BridgeService {
 	return gateService
 }
 
-func (gs *BridgeService) StartService(port int, version string) {
+func (gs *BridgeService) StartService(port int) {
 	if gs.listener != nil {
 		zlog.Error("BridgeService is already startup")
 	} else {

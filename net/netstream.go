@@ -63,28 +63,24 @@ func (s *Stream) cleanMessage() {
 	s.buffer = s.buffer[:0]
 }
 
-func (s *Stream) getHeaderSize(mode iface.MODE) int {
-	return HeaderSize
-}
-
 // parseHeader
 //
 //	@Description: 解析头部信息
 //	@receiver s
 //	@param data 流数据
 //	@param mode 解析模式
-func (s *Stream) parseHeader(data []byte, mode iface.MODE) {
+func (s *Stream) parseHeader(data []byte) {
 	buf := bytes.NewReader(data)
 	_ = binary.Read(buf, binary.BigEndian, &s.message.msgSize)
 	_ = binary.Read(buf, binary.BigEndian, &s.message.msgId)
 	_ = binary.Read(buf, binary.BigEndian, &s.message.reserve)
 }
 
-func (s *Stream) Unmarshal(data []byte, mode iface.MODE) (int, iface.IMessage, error) {
+func (s *Stream) Unmarshal(data []byte) (int, iface.IMessage, error) {
 	readLen := 0
 	dataLen := len(data)
 	bufLen := len(s.buffer)
-	headerSize := s.getHeaderSize(mode)
+	headerSize := HeaderSize
 	if bufLen > 0 {
 		// 缺多少头部
 		lessLen := headerSize - bufLen
@@ -95,7 +91,7 @@ func (s *Stream) Unmarshal(data []byte, mode iface.MODE) (int, iface.IMessage, e
 			return readLen, nil, nil
 		}
 		// 解析头部
-		s.parseHeader(s.buffer, mode)
+		s.parseHeader(s.buffer)
 	} else {
 		// 确认长度
 		if dataLen < headerSize {
@@ -103,7 +99,7 @@ func (s *Stream) Unmarshal(data []byte, mode iface.MODE) (int, iface.IMessage, e
 			// 头部长度不足, 下一次继续
 			return dataLen, nil, nil
 		}
-		s.parseHeader(data[:headerSize], mode)
+		s.parseHeader(data[:headerSize])
 		readLen += headerSize
 	}
 	if s.message.msgSize > s.maxSize {

@@ -62,7 +62,7 @@ func (s *Session) startReader() {
 		readLen := 0
 		dataLen := len(data)
 		for {
-			nread, message, err := s.netStream.Unmarshal(data, iface.ModeOuter)
+			nread, message, err := s.netStream.Unmarshal(data)
 			if err != nil {
 				zlog.Error("session net stream unmarshal error: ", err)
 				return

@@ -12,7 +12,7 @@ import (
 func main() {
 	zlog.SetLogConsole()
 
-	go net.Instance().StartService(utils.GlobalConfig.GateSrv.BindClientPort+utils.GlobalConfig.ServerId, "tcp4")
+	go net.Instance().StartService(utils.GlobalConfig.GateSrv.BindClientPort + utils.GlobalConfig.ServerId)
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
