@@ -32,6 +32,7 @@ func (s *SessionMgr) AddSession(session iface.ISession) {
 		zlog.Errorf("add session error: repeated session id: %v", session.GetSessionId())
 	}
 	s.sessions[session.GetSessionId()] = session
+	zlog.Infof("session manager: [ADD] count:%d", len(s.sessions))
 }
 
 func (s *SessionMgr) RemoveSession(sessionId uint32) {
@@ -39,6 +40,17 @@ func (s *SessionMgr) RemoveSession(sessionId uint32) {
 	defer s.lock.Unlock()
 
 	delete(s.sessions, sessionId)
+	zlog.Infof("session manager: [REMOVE] count:%d", len(s.sessions))
+}
+
+func (s *SessionMgr) GetSession(sessionId uint32) iface.ISession {
+	s.lock.RLock()
+	defer s.lock.RUnlock()
+
+	if session, ok := s.sessions[sessionId]; ok {
+		return session
+	}
+	return nil
 }
 
 func (s *SessionMgr) CleanSession() {

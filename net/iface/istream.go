@@ -1,10 +1,8 @@
 package iface
 
-type MODE int8
-
 type IMessage interface {
 	GetMsgId() uint16   // 获取消息ID
-	GetMsgLen() uint32  // 获取消息长度
+	GetMsgLen() int     // 获取消息长度
 	GetMsgData() []byte // 获取消息内容
 }
 

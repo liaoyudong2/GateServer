@@ -22,8 +22,11 @@ func (m Message) GetMsgId() uint16 {
 	return m.msgId
 }
 
-func (m Message) GetMsgLen() uint32 {
-	return m.msgSize
+func (m Message) GetMsgLen() int {
+	if m.msgData != nil {
+		return len(m.msgData)
+	}
+	return 0
 }
 
 func (m Message) GetMsgData() []byte {
@@ -150,7 +153,15 @@ func (s *Stream) Unmarshal(data []byte) (int, iface.IMessage, error) {
 }
 
 func (s *Stream) Marshal(msg iface.IMessage) []byte {
-	return nil
+	msgLen := HeaderSize + msg.GetMsgLen()
+	buffer := bytes.NewBuffer(make([]byte, msgLen))
+	_ = binary.Write(buffer, binary.BigEndian, msg.GetMsgLen())
+	_ = binary.Write(buffer, binary.BigEndian, uint32(msg.GetMsgId()))
+	_ = binary.Write(buffer, binary.BigEndian, uint32(0))
+	if msg.GetMsgLen() > 0 {
+		_ = binary.Write(buffer, binary.BigEndian, msg.GetMsgData())
+	}
+	return buffer.Bytes()
 }
 
 func (s *Stream) SetMaxSize(size uint32) {

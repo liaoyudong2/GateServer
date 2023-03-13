@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-const LoggerPath = "log/GateSrv"
+const LoggerPath = "log/GateServer"
 
 // GateSSLConfig 网关的ssl配置
 type GateSSLConfig struct {

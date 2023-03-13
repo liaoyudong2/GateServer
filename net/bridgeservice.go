@@ -8,16 +8,16 @@ import (
 	"net"
 	"net/http"
 	"sync"
+	"sync/atomic"
 )
 
 // BridgeService
 // @Description: 桥服务
 type BridgeService struct {
-	ipVersion   string            // 协议版本
 	listener    net.Listener      // 监听对象
 	lock        sync.RWMutex      // 读写锁
 	exitChan    chan bool         // 退出信号
-	sessionIter uint32            // 会话自增ID
+	sessionIter atomic.Uint32     // 会话自增ID
 	maxSession  int               // 最大会话数量
 	sessionMgr  iface.ISessionMgr // 连接管理
 }
@@ -25,14 +25,12 @@ type BridgeService struct {
 const DefaultMaxSession = 1024
 
 var gateService = &BridgeService{
-	ipVersion:   "tcp4",
-	exitChan:    make(chan bool, 1),
-	sessionIter: 0,
-	maxSession:  DefaultMaxSession,
-	sessionMgr:  NewSessionMgr(DefaultMaxSession),
+	exitChan:   make(chan bool, 1),
+	maxSession: DefaultMaxSession,
+	sessionMgr: NewSessionMgr(DefaultMaxSession),
 }
 
-func Instance() *BridgeService {
+func Ins() *BridgeService {
 	return gateService
 }
 
@@ -58,30 +56,17 @@ func (gs *BridgeService) StartService(port int) {
 			}
 			if gs.sessionMgr.GetSessionCount() >= gs.maxSession {
 				zlog.Error("session count overflow, limit count is %d", gs.maxSession)
+				_ = conn.Close()
 				return
 			}
-			gs.sessionIter++
-			gs.sessionMgr.AddSession(NewSession(gs.sessionIter, conn))
+			gs.sessionIter.Add(1)
+			gs.sessionMgr.AddSession(NewSession(gs.sessionIter.Load(), conn, gs.sessionMgr))
 		})
+
+		zlog.Infof("BridgeService startup, listen at %v", addr)
 		err := http.ListenAndServe(addr, nil)
 		if err != nil {
 			panic(err)
-		}
-		zlog.Infof("BridgeService startup, listen at %v", addr)
-
-		select {
-		case <-gs.exitChan:
-			if err := gs.listener.Close(); err != nil {
-				zlog.Error("BridgeService is shutdown error ", err)
-			} else {
-				zlog.Infof("BridgeService shutdown")
-			}
-			gs.listener = nil
-			// 会话关闭
-			gs.sessionMgr.CleanSession()
-			// 释放结束信号
-			gs.exitChan <- true
-			break
 		}
 	}
 }
@@ -104,4 +89,22 @@ func (gs *BridgeService) SetMaxSession(num int) {
 
 func (gs *BridgeService) GetSessionMgr() iface.ISessionMgr {
 	return gs.sessionMgr
+}
+
+func (gs *BridgeService) SendMessageToSession(sessionId uint32, msg iface.IMessage) {
+	session := gs.sessionMgr.GetSession(sessionId)
+	if session == nil {
+		zlog.Errorf("session undefined, session id: %d", sessionId)
+	} else {
+		session.SendMessage(msg)
+	}
+}
+
+func (gs *BridgeService) RawBufferToSession(sessionId uint32, buf []byte) {
+	session := gs.sessionMgr.GetSession(sessionId)
+	if session == nil {
+		zlog.Errorf("session undefined, session id: %d", sessionId)
+	} else {
+		session.RawBuffer(buf)
+	}
 }

@@ -12,7 +12,8 @@ import (
 func main() {
 	zlog.SetLogConsole()
 
-	go net.Instance().StartService(utils.GlobalConfig.GateSrv.BindClientPort + utils.GlobalConfig.ServerId)
+	net.Ins().SetMaxSession(4096)
+	go net.Ins().StartService(utils.GlobalConfig.GateSrv.BindClientPort + utils.GlobalConfig.ServerId)
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
@@ -21,6 +22,6 @@ func main() {
 		break
 	}
 	zlog.Warn("GateSrv Shutdown...")
-	net.Instance().StopService()
+	net.Ins().StopService()
 	zlog.Warn("GateSrv Shutdown...Done")
 }
